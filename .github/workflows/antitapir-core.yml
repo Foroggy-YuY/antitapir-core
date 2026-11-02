@@ -1,0 +1,14 @@
+name: Anti-Tapir Core
+on: [push, pull_request]
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - run: go test -tags with_utls ./cmd/sing-box ./cmd/sing-box/internal/control
+      - run: go build -tags with_utls -o artifacts/antitapir-core.exe ./cmd/sing-box
+      - run: .\artifacts\antitapir-core.exe core-info
+      - run: .\artifacts\antitapir-core.exe check -c examples/antitapir-smoke.json

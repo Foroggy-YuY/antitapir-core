@@ -49,6 +49,7 @@ func readConfigAt(path string) (*OptionsEntry, error) {
 		configContent []byte
 		err           error
 	)
+
 	if path == "stdin" {
 		configContent, err = io.ReadAll(os.Stdin)
 	} else {
@@ -57,6 +58,7 @@ func readConfigAt(path string) (*OptionsEntry, error) {
 	if err != nil {
 		return nil, E.Cause(err, "read config at ", path)
 	}
+
 	options, err := json.UnmarshalExtendedContext[option.Options](globalCtx, configContent)
 	if err != nil {
 		return nil, E.Cause(err, "decode config at ", path)

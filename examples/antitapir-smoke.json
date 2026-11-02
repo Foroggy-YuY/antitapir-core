@@ -1,0 +1,6 @@
+{
+  "log": { "disabled": true },
+  "inbounds": [],
+  "outbounds": [ { "type": "direct", "tag": "direct" } ],
+  "route": { "final": "direct" }
+}

@@ -1,31 +1,36 @@
-# sing-box
+# Anti-Tapir Core
 
-The universal proxy platform.
+Windows networking component for Anti-Tapir, maintained by Foroggy
+(https://github.com/Foroggy-YuY). Local source preparation, not a public release.
 
-[![Packaging status](https://repology.org/badge/vertical-allrepos/sing-box.svg)](https://repology.org/project/sing-box/versions)
+Based on SagerNet/sing-box v1.14.0-alpha.18 at
+b2d5fb62290b9a648a04693a2d32ebf253d684ae. Original authorship, LICENSE and
+upstream history are retained. Historical Anti-Tapir integration by devMorpheus:
+https://github.com/devMorpheus/sing-box (46659f117676e66dd2b5caec41215f0595a72984).
+The inherited XOR/UDP and embedded-profile design has been replaced.
 
-## Documentation
+## Changes
 
-https://sing-box.sagernet.org
+- External JSON configuration; no private credentials embedded at build time.
+- Managed inherited-stdio protocol v1, startup readiness and graceful shutdown.
+- Parent EOF cancellation, startup/shutdown deadlines and fixed safe error codes.
+- Core identity via `core-info` and Go lifecycle tests with no VPN connection.
+- Upstream protocol/routing implementations remain unchanged.
 
-## License
+## Build and verify
 
+Requires Go 1.24.7+. Run on Windows:
+
+```bat
+go test ./cmd/sing-box/internal/control
+go build -tags with_utls -o antitapir-core.exe ./cmd/sing-box
+antitapir-core.exe core-info
+antitapir-core.exe check -c examples/antitapir-smoke.json
 ```
-Copyright (C) 2022 by nekohasekai <contact-sagernet@sekai.icu>
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+The synthetic config has no TUN, listener or server. Successful smoke tests do
+not prove live TUN operation. See docs/antitapir-protocol.md for the IPC contract;
+its application-side commands refer to the companion Anti-Tapir repository.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-In addition, no derivative work may use the name or imply association
-with this application without prior consent.
-```
+See LICENSE and UPSTREAM_README.md for upstream notices and naming conditions.
+No upstream authorship is claimed by this fork.
