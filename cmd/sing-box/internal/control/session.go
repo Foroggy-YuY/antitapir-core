@@ -12,19 +12,20 @@ import (
 )
 
 const Protocol = 1
-const Version = "0.1.0"
-const MaxMessage = 4096
+const Version = "0.2.0"
+const MaxMessage = 2 * 1024 * 1024
 
 type Message struct {
-	Protocol int    `json:"protocol"`
-	Type     string `json:"type"`
-	Version  string `json:"version,omitempty"`
-	Code     string `json:"code,omitempty"`
+	Protocol int             `json:"protocol"`
+	Type     string          `json:"type"`
+	Version  string          `json:"version,omitempty"`
+	Code     string          `json:"code,omitempty"`
+	Config   json.RawMessage `json:"config,omitempty"`
 }
 
 // Start must honor context cancellation and return a cleanup function even
 // after partial startup. The callback emits only non-secret lifecycle events.
-type Start func(context.Context, func(string) error) (func() error, error)
+type Start func(context.Context, func(string) error, []byte) (func() error, error)
 
 type result struct {
 	close func() error
@@ -44,7 +45,7 @@ func Serve(input io.Reader, output io.Writer, start Start, timeout time.Duration
 	go func() {
 		defer close(ended)
 		scanner := bufio.NewScanner(input)
-		scanner.Buffer(make([]byte, MaxMessage), MaxMessage)
+		scanner.Buffer(make([]byte, 4096), MaxMessage)
 		for scanner.Scan() {
 			var msg Message
 			if json.Unmarshal(scanner.Bytes(), &msg) != nil {
@@ -99,8 +100,9 @@ func Serve(input io.Reader, output io.Writer, start Start, timeout time.Duration
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	started := make(chan result, 1)
+	configContent := msg.Config
 	go func() {
-		closeEngine, err := start(ctx, func(kind string) error { return emit(kind, "") })
+		closeEngine, err := start(ctx, func(kind string) error { return emit(kind, "") }, configContent)
 		started <- result{closeEngine, err}
 	}()
 	var engine result

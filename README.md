@@ -15,6 +15,8 @@ The inherited XOR/UDP and embedded-profile design has been replaced.
 - Managed inherited-stdio protocol v1, startup readiness and graceful shutdown.
 - Parent EOF cancellation, startup/shutdown deadlines and fixed safe error codes.
 - Core identity via `core-info` and Go lifecycle tests with no VPN connection.
+- Core 0.2 adds the memory-config capability: decrypted user profiles arrive
+  through the inherited pipe, never through a temporary cleartext JSON file.
 - Upstream protocol/routing implementations remain unchanged.
 
 ## Build and verify

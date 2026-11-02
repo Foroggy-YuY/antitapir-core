@@ -72,7 +72,7 @@ func TestLifecycleAndEOF(t *testing.T) {
 	for _, disconnect := range []bool{false, true} {
 		t.Run(map[bool]string{false: "stop", true: "EOF"}[disconnect], func(t *testing.T) {
 			var closed atomic.Bool
-			h := newHarness(t, func(ctx context.Context, emit func(string) error) (func() error, error) {
+			h := newHarness(t, func(ctx context.Context, emit func(string) error, _ []byte) (func() error, error) {
 				_ = emit("config_accepted")
 				return func() error { closed.Store(true); return nil }, nil
 			}, time.Second)
@@ -96,7 +96,7 @@ func TestLifecycleAndEOF(t *testing.T) {
 
 func TestVersionAndInvalidCommandNeverStartEngine(t *testing.T) {
 	for _, msg := range []Message{{Protocol: 2, Type: "start"}, {Protocol: 1, Type: "unexpected"}} {
-		h := newHarness(t, func(context.Context, func(string) error) (func() error, error) {
+		h := newHarness(t, func(context.Context, func(string) error, []byte) (func() error, error) {
 			t.Error("unexpected engine startup")
 			return nil, nil
 		}, time.Second)
@@ -109,7 +109,7 @@ func TestVersionAndInvalidCommandNeverStartEngine(t *testing.T) {
 func TestCancelDuringStartup(t *testing.T) {
 	for _, disconnect := range []bool{false, true} {
 		var closed atomic.Bool
-		h := newHarness(t, func(ctx context.Context, emit func(string) error) (func() error, error) {
+		h := newHarness(t, func(ctx context.Context, emit func(string) error, _ []byte) (func() error, error) {
 			_ = emit("config_accepted")
 			<-ctx.Done()
 			return func() error { closed.Store(true); return nil }, ctx.Err()
@@ -131,7 +131,7 @@ func TestCancelDuringStartup(t *testing.T) {
 }
 
 func TestStartupErrorDoesNotExposeSecrets(t *testing.T) {
-	h := newHarness(t, func(context.Context, func(string) error) (func() error, error) {
+	h := newHarness(t, func(context.Context, func(string) error, []byte) (func() error, error) {
 		return nil, errors.New("secret-password")
 	}, time.Second)
 	h.send(t, Protocol, "start")
@@ -146,7 +146,7 @@ func TestStartupErrorDoesNotExposeSecrets(t *testing.T) {
 
 func TestHandshakeTimeoutAndMalformedInput(t *testing.T) {
 	for _, input := range []string{"", "not-json\n", strings.Repeat("x", MaxMessage+1) + "\n"} {
-		h := newHarness(t, func(context.Context, func(string) error) (func() error, error) {
+		h := newHarness(t, func(context.Context, func(string) error, []byte) (func() error, error) {
 			t.Error("unexpected start")
 			return nil, nil
 		}, 20*time.Millisecond)
@@ -159,7 +159,7 @@ func TestHandshakeTimeoutAndMalformedInput(t *testing.T) {
 }
 
 func TestStartupDeadlineCancelsEngine(t *testing.T) {
-	h := newHarness(t, func(ctx context.Context, emit func(string) error) (func() error, error) {
+	h := newHarness(t, func(ctx context.Context, emit func(string) error, _ []byte) (func() error, error) {
 		_ = emit("config_accepted")
 		<-ctx.Done()
 		return func() error { return nil }, ctx.Err()
