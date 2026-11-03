@@ -1,7 +1,9 @@
 # Anti-Tapir Core
 
 Windows networking component for Anti-Tapir, maintained by Foroggy
-(https://github.com/Foroggy-YuY). Local source preparation, not a public release.
+(https://github.com/Foroggy-YuY).
+Official fork: https://github.com/Foroggy-YuY/antitapir-core
+Original upstream: https://github.com/SagerNet/sing-box
 
 Based on SagerNet/sing-box v1.14.0-alpha.18 at
 b2d5fb62290b9a648a04693a2d32ebf253d684ae. Original authorship, LICENSE and
